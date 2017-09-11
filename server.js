@@ -33,6 +33,18 @@ app.get('/', function(req, res) {
 	res.render('home');
 });
 
+app.get('/users', function(req, res) {
+	res.render('users');
+});
+
+app.get('/obituary', function(req, res) {
+	res.render('obituary');
+});
+
+app.get('/sms', function(req, res) {
+	res.render('sms');
+});
+
 // 404 catch-all handler (middleware)
 app.use(function(req, res, next){
 	res.status(404);

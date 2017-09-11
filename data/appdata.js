@@ -3,24 +3,19 @@ module.exports = {
   	return {
   		menus: [
   			{
-  				name: 'menu name 1',
-  				href: '/about',
+  				name: '회원관리',
+  				href: '/users',
   			},
   			{
-  				name: 'menu name 2',
-  				href: '/about',
+  				name: '사망진단서',
+  				href: '/obituary',
   			},
   			{
-  				name: 'menu name 3',
-  				href: '/about',
-  			},
-  			{
-  				name: 'menu name 4',
-  				href: '/about',
+  				name: '문자발송',
+  				href: '/sms',
   			},
   		],
   	};
   },
-
 
 };
