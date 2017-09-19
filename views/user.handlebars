@@ -1,0 +1,17 @@
+<div class="row"><p></p></div>
+<div class="row">
+  <div class="row justify-content-center">
+    <div class="col-xs-12 col-sm-12 col-md-3">
+      <img src="http://localhost:3000/{{user.data.imagepath}}" alt="user image" height="200px" width="200px" />
+      <hr>
+      <h4>성함 :{{user.data.name}}</h4>
+      <h6>생년월일 :{{user.data.birth}}</h6>
+      <h6>전화번호 :{{user.data.phone}}</h6>
+      <h6>이메일 :{{user.data.email}}</h6>
+      <h6>사망여부 :{{user.data.alive}}</h6>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-5">
+      학교 : {{user.data.school}} <br> 회사 : {{user.data.company}} <br> 동아리 : {{user.data.society}} <hr> 남김말 : {{user.data.lastwill}} <br>
+    </div>
+  </div>
+</div>
