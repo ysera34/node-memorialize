@@ -1,5 +1,25 @@
 <h1>users</h1>
-<p>{{users.counted}}</p>
+<table class="table table-sm table-bordered table-hover">
+<thead class="thead-inverse">
+    <tr>
+      <th>#</th>
+      <th>성함</th>
+      <th>전화번호</th>
+      <th>이메일</th>
+			<th>사망확인여부</th>
+			<th>문자발송</th>
+    </tr>
+  </thead>
+	 <tbody>
 {{#each users.data}}
-	<p>{{name}} {{phone}}</p>
+	<tr>
+		<th scope="row">{{id}}</th>
+		<td>{{name}}</td>
+		<td>{{phone}}</td>
+		<td>{{email}}</td>
+		<td>{{alive}}</td>
+		<td><a class="btn btn-dark" href="#" role="button">SMS</a></td>
+	</tr>
 {{/each}}
+</tbody>
+</table>

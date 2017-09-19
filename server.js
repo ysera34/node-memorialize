@@ -2,6 +2,18 @@ var express = require('express');
 // formidable = require('formidable');
 var appdata = require('./data/appdata.js');
 var pool = require('./configs/connector.js');
+var multer = require('multer');
+// var upload = multer({ dest: 'uploads/' });
+var upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+      cb(null, new Date().valueOf() + file.originalname);
+    }
+  }),
+});
 
 var app = express();
 
@@ -22,6 +34,7 @@ app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
 
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/uploads'));
 // app.use(require('body-parser')());
 
 app.use(function(req, res, next) {
@@ -58,8 +71,19 @@ app.get('/obituary', function(req, res) {
   res.render('obituary');
 });
 
+app.get('/qna', function(req, res) {
+  res.render('qna');
+});
+
 app.get('/sms', function(req, res) {
   res.render('sms');
+});
+
+app.post('/upload', upload.single('img'), function (req, res, next) {
+  // req.file is the `avatar` file
+  // req.body will hold the text fields, if there were any
+  console.log(req.file);
+  res.sendStatus(200);
 });
 
 // 404 catch-all handler (middleware)
@@ -79,3 +103,14 @@ app.listen(app.get('port'), function() {
   console.log('Express started on http://localhost:' +
     app.get('port') + '; press Ctrl-C to terminate.');
 });
+
+// var storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, '/tmp/my-uploads');
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, file.fieldname + '-' + Date.now());
+//   }
+// });
+//
+// var upload = multer({ storage: storage });

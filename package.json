@@ -11,6 +11,8 @@
   "dependencies": {
     "express": "^4.15.4",
     "express-handlebars": "^3.0.0",
-    "node-mysql": "^0.4.2"
+    "multer": "^1.3.0",
+    "node-mysql": "^0.4.2",
+    "q": "^1.5.0"
   }
 }

@@ -10,12 +10,7 @@ module.exports = {
   				name: '사망진단서',
   				href: '/obituary',
   			},
-  			{
-  				name: '문자발송',
-  				href: '/sms',
-  			},
   		],
   	};
   },
-
 };
