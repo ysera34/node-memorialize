@@ -1,1 +1,19 @@
 <h1>obituary</h1>
+<div class="card-columns">
+  {{#each obituaries.data}}
+  <div class="card">
+    <img class="card-img-top" src="http://localhost:5000/{{imagepath}}" alt="obituary image cap">
+    <div class="card-body">
+      <h4 class="card-title">사망진단서</h4>
+      <p class="card-text">본인이름 : {{sendername}}</p>
+      <p class="card-text">사망인 : {{recipient}}</p>
+      <p class="card-text">관계 : {{relations}}</p>
+      <p class="card-text">연락처 : {{contacts}}</p>
+    </div>
+    <div class="card-footer">
+      <a class="btn btn-dark" href="#" role="button">SMS</a>
+      <!-- <small class="text-muted">Last updated 3 mins ago</small> -->
+    </div>
+  </div>
+  {{/each}}
+</div>

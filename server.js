@@ -65,47 +65,6 @@ app.get('/', function(req, res) {
   res.render('home');
 });
 
-app.get('/users', function(req, res) {
-
-  var users = [];
-  pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, name, phone, email, alive FROM users', function(error, results, fields) {
-      connection.release();
-
-      if (error) console.error(error);
-      users = {
-        message: "success",
-        counted: results.length,
-        data: results,
-      };
-      res.render('users', {
-        users: users
-      });
-    });
-  });
-});
-
-app.get('/users/:id', function(req, res) {
-  var userId = req.params.id;
-  var user;
-  pool.getConnection(function(err, connection) {
-    var query = 'SELECT id, name, phone, email, imagepath, alive, gender, school,' +
-    ' company, society, lastwill FROM users where id = ?';
-    connection.query(query, [userId], function(error, results, fields) {
-      connection.release();
-
-      if (error) console.error(error);
-      user = {
-        message: "success",
-        data: results[0],
-      };
-      res.render('user', {
-        user: user
-      });
-    });
-  });
-});
-
 app.get('/api/users/:id', function(req, res) {
   var userId = req.params.id;
   var user;
@@ -125,6 +84,8 @@ app.get('/api/users/:id', function(req, res) {
     });
   });
 });
+
+// callback(error, data1, data2, data3, callback)
 
 app.post('/api/users/signup', function(req, res, next) {
     var params = {
@@ -184,7 +145,6 @@ app.post('/api/users/signup', function(req, res, next) {
     });
   });
 
-
 app.post('/api/users/signin', function(req, res, next) {
   var params = {
     email:req.body.email,
@@ -228,13 +188,13 @@ app.post('/api/users/altar', function(req, res, next) {
     conn.beginTransaction(function(err) {
       if (err) {
         conn.release();
-        return callback(err);
+        return next(err);
       }
 
       asy.waterfall([function(callback) {
         upload(req, res, 'userimage', callback);
 
-      },function(filename, callback) {
+      }, function(filename, callback) {
         var query = "update users set ? where email = ?";
         var params = {
           name: req.body.name,
@@ -254,7 +214,7 @@ app.post('/api/users/altar', function(req, res, next) {
       }, function(callback) {
           var query = "select * from users where email = ?";
           conn.query(query, [req.body.email], function(error, results) {
-            if (error) return callback(error, null);
+            if (error) return callback(error);
 
             user = results[0];
             var result = {
@@ -269,14 +229,14 @@ app.post('/api/users/altar', function(req, res, next) {
           if (ERROR) {
             return conn.rollback(function() {
               conn.release();
-              callback(ERROR);
+              next(ERROR);
             });
           }
           conn.commit(function(error) {
             if (error) {
               return conn.rollback(function() {
                 conn.release();
-                callback(error);
+                next(error);
               });
             }
             conn.release();
@@ -286,69 +246,127 @@ app.post('/api/users/altar', function(req, res, next) {
     });
   });
 });
-//
-// app.post('/api/users/altar', function(req, res, next) {
-//   upload(req, res, 'image');
-//   // var user;
-//   var user = null;
-//   pool.getConnection(function(err, conn) {
-//     if (err) {
-//       console.error(err);
-//       return next(err);
-//     }
-//     asy.waterfall([function(callback) {
-//         var query = "update users set ? where email = ?";
-//         var params = {
-//           name: req.body.name,
-//           birth: req.body.birth,
-//           imagepath: req.body.email + ".jpg",
-//           gender: req.body.gender,
-//           school: req.body.school,
-//           company: req.body.company,
-//           society: req.body.society,
-//           lastwill: req.body.lastwill,
-//           bank: req.body.bank,
-//         };
-//         console.log(req.body.email);
-//         conn.query(query, [params, req.body.email], function(error, results) {
-//           if (error) {
-//             console.error(err);
-//             return callback(error);
-//           }
-//           if (results.affectedRows < 1) {
-//             var noMatchError = new Error("no user matched email");
-//             return callback(noMatchError);
-//           }
-//           callback(null);
-//         });
-//     }, function(callback) {
-//       var query = "select * from users where email = ?";
-//       conn.query(query, [req.body.email], function(error, results, fields) {
-//         if (error) {
-//           return callback(error);
-//         }
-//         user = results[0];
-//         callback(null, user);
-//       });
-//     }], function(ERROR, RESULT) {
-//       conn.release();
-//       if (ERROR) {
-//         console.error(ERROR);
-//         return next(ERROR);
-//       }
-//       var result = {
-//         message: "success",
-//         data: user,
-//       };
-//       return res.json(result);
-//     });
-//   });
-// });
 
+app.post('/api/obituary', function(req, res, next) {
 
+  pool.getConnection(function(err, conn) {
+    if (err) return next(err);
+
+    conn.beginTransaction(function(err) {
+      if (err) {
+        conn.release();
+        return next(err);
+      }
+
+      asy.waterfall([function(callback) {
+        upload(req, res, 'obituaryimage', callback);
+
+      }, function(filename, callback) {
+        var query = "insert into obituaries set ?";
+        var params = {
+          sendername: req.body.senderName,
+          recipient: req.body.recipient,
+          relations: req.body.relations,
+          contacts: req.body.contacts,
+          imagepath: filename,
+        };
+        conn.query(query, [params], function(error, results) {
+          if (error) return callback(error);
+          var result = {
+            message: "success",
+          };
+          callback(null, result);
+        });
+
+      }], function(ERROR, RESULT) {
+        var result = RESULT;
+        if (ERROR) {
+          return conn.rollback(function() {
+            conn.release();
+            next(ERROR);
+          });
+        }
+        conn.commit(function(err) {
+          if (err) {
+            return conn.rollback(function() {
+              conn.release();
+              next(error);
+            });
+          }
+          conn.release();
+          res.json(result);
+        });
+      });
+    });
+  });
+});
+
+app.get('/users', function(req, res) {
+
+  var users = [];
+  pool.getConnection(function(err, connection) {
+    connection.query('SELECT id, name, phone, email, alive FROM users', function(error, results, fields) {
+      connection.release();
+
+      if (error) {
+        console.error(error);
+        next(error);
+      }
+      users = {
+        message: "success",
+        counted: results.length,
+        data: results,
+      };
+      res.render('users', {
+        users: users
+      });
+    });
+  });
+});
+
+app.get('/users/:id', function(req, res) {
+  var userId = req.params.id;
+  var user;
+  pool.getConnection(function(err, connection) {
+    var query = 'SELECT id, name, phone, email, imagepath, alive, gender, school,' +
+    ' company, society, lastwill FROM users where id = ?';
+    connection.query(query, [userId], function(error, results, fields) {
+      connection.release();
+
+      if (error) console.error(error);
+      user = {
+        message: "success",
+        data: results[0],
+      };
+      res.render('user', {
+        user: user
+      });
+    });
+  });
+});
 
 app.get('/obituary', function(req, res) {
-  res.render('obituary');
+
+  var obituaries = [];
+  var query = "select id, sendername, recipient, relations, contacts, imagepath from obituaries order by id desc";
+  pool.getConnection(function(err, conn) {
+    conn.query(query, function(error, results, fields) {
+      conn.release();
+
+      if (error) {
+        console.error(error);
+        next(error);
+      }
+      obituaries = {
+        message: "success",
+        counted: results.length,
+        data: results,
+      };
+      res.render('obituary', {
+        obituaries: obituaries
+      });
+    });
+  });
 });
 
 app.get('/qna', function(req, res) {
@@ -358,13 +376,6 @@ app.get('/qna', function(req, res) {
 app.get('/sms', function(req, res) {
   res.render('sms');
 });
-
-// app.post('/upload', upload.single('img'), function (req, res, next) {
-  // req.file is the `avatar` file
-  // req.body will hold the text fields, if there were any
-//   console.log(req.file);
-//   res.sendStatus(200);
-// });
 
 // 404 catch-all handler (middleware)
 app.use(function(req, res, next) {
