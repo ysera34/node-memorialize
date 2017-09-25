@@ -347,7 +347,7 @@ app.get('/users/:id', function(req, res) {
   });
 });
 
-app.get('/obituary', function(req, res) {
+app.get('/obituaries', function(req, res) {
 
   var obituaries = [];
   var query = "select id, sender, recipient, relations, contacts, imagepath from obituaries order by id desc";
@@ -364,8 +364,30 @@ app.get('/obituary', function(req, res) {
         counted: results.length,
         data: results,
       };
-      res.render('obituary', {
+      res.render('obituaries', {
         obituaries: obituaries
+      });
+    });
+  });
+});
+
+app.get('/obituaries/:id', function(req, res) {
+  var obituaryId = req.params.id;
+  var obituary;
+  pool.getConnection(function(err, connection) {
+    var query = 'SELECT name, birth, imagepath from users where name = ' +
+    '(select recipient from obituaries where id = ?);';
+    connection.query(query, [obituaryId], function(error, results, fields) {
+      connection.release();
+
+      if (error) console.error(error);
+      obituary = {
+        message: "success",
+        data: results[0],
+      };
+      res.render('obituary', {
+        layout: false,
+        obituary: obituary,
       });
     });
   });

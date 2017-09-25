@@ -8,7 +8,7 @@ module.exports = {
   			},
   			{
   				name: '부고알림',
-  				href: '/obituary',
+  				href: '/obituaries',
   			},
         {
   				name: 'Q & A',
