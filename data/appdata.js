@@ -7,8 +7,12 @@ module.exports = {
   				href: '/users',
   			},
   			{
-  				name: '사망진단서',
+  				name: '부고알림',
   				href: '/obituary',
+  			},
+        {
+  				name: 'Q & A',
+  				href: '/qna',
   			},
   		],
   	};

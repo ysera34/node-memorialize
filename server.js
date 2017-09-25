@@ -4,6 +4,7 @@ var asy = require('async');
 var appdata = require('./data/appdata.js');
 var pool = require('./configs/connector.js');
 var multer = require('multer');
+var path = require('path');
 // var upload = multer({ dest: 'uploads/' });
 // var upload = multer({dest: 'uploads/', limits: {fileSize:3000000}});
 
@@ -36,12 +37,13 @@ var upload = function(req, res, imageKey, callback) {
       callback(null, 'uploads/');
     },
     filename: function(req, file, callback) {
-      console.log(file)
+      console.log(file);
       file.uploadedFile = {
         name: file.fieldname + '-' + Date.now(),
-        ext: file.mimetype.split('/')[1],
+        // ext: file.mimetype.split('/')[1],
+        ext: path.extname(file.originalname),
       };
-      callback(null, file.uploadedFile.name + '.' + file.uploadedFile.ext);
+      callback(null, file.uploadedFile.name + file.uploadedFile.ext);
     },
   });
   var upload = multer({ storage: storage}).single(imageKey);
@@ -264,7 +266,7 @@ app.post('/api/obituary', function(req, res, next) {
       }, function(filename, callback) {
         var query = "insert into obituaries set ?";
         var params = {
-          sendername: req.body.senderName,
+          sender: req.body.sender,
           recipient: req.body.recipient,
           relations: req.body.relations,
           contacts: req.body.contacts,
@@ -348,7 +350,7 @@ app.get('/users/:id', function(req, res) {
 app.get('/obituary', function(req, res) {
 
   var obituaries = [];
-  var query = "select id, sendername, recipient, relations, contacts, imagepath from obituaries order by id desc";
+  var query = "select id, sender, recipient, relations, contacts, imagepath from obituaries order by id desc";
   pool.getConnection(function(err, conn) {
     conn.query(query, function(error, results, fields) {
       conn.release();
