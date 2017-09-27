@@ -266,7 +266,7 @@ app.post('/api/obituary', function(req, res, next) {
       }, function(filename, callback) {
         var query = "insert into obituaries set ?";
         var params = {
-          sender: req.body.sender,
+          sender: decodeURIComponent(req.body.sender),
           recipient: req.body.recipient,
           relations: req.body.relations,
           contacts: req.body.contacts,
@@ -331,7 +331,7 @@ app.get('/users/:id', function(req, res) {
   var user;
   pool.getConnection(function(err, connection) {
     var query = 'SELECT id, name, phone, email, imagepath, alive, gender, school,' +
-    ' company, society, lastwill FROM users where id = ?';
+    ' company, society, lastwill, bank FROM users where id = ?';
     connection.query(query, [userId], function(error, results, fields) {
       connection.release();
 
