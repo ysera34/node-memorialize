@@ -5,6 +5,7 @@ var appdata = require('./data/appdata.js');
 var pool = require('./configs/connector.js');
 var multer = require('multer');
 var path = require('path');
+
 // var upload = multer({ dest: 'uploads/' });
 // var upload = multer({dest: 'uploads/', limits: {fileSize:3000000}});
 
@@ -21,6 +22,7 @@ var handlebars = require('express-handlebars').create({
     }
   }
 });
+
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
@@ -129,14 +131,14 @@ app.post('/api/users/signup', function(req, res, next) {
             if (ERROR) {
               return conn.rollback(function() {
                 conn.release();
-                callback(ERROR);
+                next(ERROR);
               });
             }
             conn.commit(function(error) {
               if (error) {
                 return conn.rollback(function() {
                   conn.release();
-                  callback(error);
+                  next(error);
                 });
               }
               conn.release();
@@ -326,24 +328,81 @@ app.get('/users', function(req, res) {
   });
 });
 
-app.get('/users/:id', function(req, res) {
+app.get('/users/:id', function(req, res, next) {
   var userId = req.params.id;
   var user;
-  pool.getConnection(function(err, connection) {
-    var query = 'SELECT id, name, phone, email, imagepath, alive, gender, school,' +
-    ' company, society, lastwill, bank FROM users where id = ?';
-    connection.query(query, [userId], function(error, results, fields) {
-      connection.release();
+  var obituaryImagePaths = [];
+  pool.getConnection(function(err, conn) {
+    if (err) return next(err);
 
-      if (error) console.error(error);
-      user = {
-        message: "success",
-        data: results[0],
-      };
-      res.render('user', {
-        user: user
+    conn.beginTransaction(function(err) {
+      if (err) {
+        conn.release();
+        return callback(err);
+      }
+
+      asy.waterfall([function(callback) {
+        var query = 'SELECT id, name, phone, email, imagepath, alive, gender, school,' +
+        ' company, society, lastwill, bank FROM users where id = ?';
+        // userId *= 1;
+        conn.query(query, [userId], function(error, results) {
+          if (error) return callback(error);
+          user = results[0];
+          callback(null);
+        });
+      }, function(callback) {
+        var query = 'select imagepath from obituaries where sender = ' +
+        ' (select name from users where id = ?)';
+        conn.query(query, userId, function(error, results) {
+          if (error) return callback(error);
+          user.obituaryImagePaths = results;
+          var result = {
+            message : "success",
+            data : user,
+          };
+          callback(null, result);
+        });
+      }], function(ERROR, RESULT) {
+        var result = RESULT;
+        if (ERROR) {
+          return conn.rollback(function() {
+            conn.release();
+            next(ERROR);
+          });
+        }
+        conn.commit(function(error) {
+          if (error) {
+            return conn.rollback(function() {
+              conn.release();
+              next(error);
+            });
+          }
+          conn.release();
+          res.render('user', {
+            user: result,
+          });
+          // res.json(result);
+        });
       });
     });
+    // var query = 'select u.id, u.name, u.birth, u.phone, u.email, u.imagepath, u.alive, ' +
+    // ' u.gender, u.school, u.company, u.society, u.lastwill, u.bank, ' +
+    // ' o.imagepath as obituaryimagepath ' +
+    // ' from users u ' +
+    // ' left join obituaries o on u.name = o.sender ' +
+    // ' where u.id = ?;';
+    // conn.query(query, [userId], function(error, results, fields) {
+    //   conn.release();
+    //
+    //   if (error) console.error(error);
+    //   user = {
+    //     message: "success",
+    //     data: results[0],
+    //   };
+    //   res.render('user', {
+    //     user: user
+    //   });
+    // });
   });
 });
 

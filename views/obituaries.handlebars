@@ -1,8 +1,11 @@
 <h1>obituary</h1>
-<div class="card-columns">
+{{#if obituaries.data.length}}
+<!-- <div class="card-columns"> -->
+<div class="row">
   {{#each obituaries.data}}
+  <div class="col-xs-12 col-sm-12 col-md-3">
   <div class="card">
-    <img class="card-img-top" src="http://localhost:5000/{{imagepath}}" alt="obituary image cap">
+    <img class="card-img-top" src="http://211.108.3.4:5000/{{imagepath}}" alt="obituary image cap">
     <div class="card-body">
       <h4 class="card-title">사망진단서</h4>
       <p class="card-text">본인이름 : {{sender}}</p>
@@ -11,9 +14,11 @@
       <p class="card-text">연락처 : {{contacts}}</p>
     </div>
     <div class="card-footer">
-      <a class="btn btn-dark" href="http://localhost:5000/obituaries/{{id}}" role="button">SMS</a>
+      <a class="btn btn-dark" href="http://211.108.3.4:5000/obituaries/{{id}}" role="button">SMS</a>
       <!-- <small class="text-muted">Last updated 3 mins ago</small> -->
     </div>
   </div>
+</div>
   {{/each}}
 </div>
+{{/if}}

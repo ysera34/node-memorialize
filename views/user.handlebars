@@ -1,8 +1,10 @@
-<div class="row"><p></p></div>
+<div class="row">
+  <p></p>
+</div>
 <div class="row">
   <div class="row justify-content-center">
     <div class="col-xs-12 col-sm-12 col-md-3">
-      <img src="http://localhost:5000/{{user.data.imagepath}}" alt="user image" height="200px" width="200px" />
+      <img src="http://211.108.3.4:5000/{{user.data.imagepath}}" alt="user image" height="200px" width="200px" />
       <hr>
       <h4>성함 :{{user.data.name}}</h4>
       <h6>생년월일 :{{user.data.birth}}</h6>
@@ -11,7 +13,29 @@
       <h6>사망여부 :{{user.data.alive}}</h6>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5">
-      학교 : {{user.data.school}} <br> 회사 : {{user.data.company}} <br> 동아리 : {{user.data.society}} <hr> 남김말 : {{user.data.lastwill}} <br>
+      학교 : {{user.data.school}} <br> 회사 : {{user.data.company}} <br> 동아리 : {{user.data.society}}
+      <hr> 남김말 : {{user.data.lastwill}} <br>
     </div>
   </div>
 </div>
+<hr>
+{{#if user.data.obituaryImagePaths.length}}
+<div class="row">
+  <div class="col text-center">
+    <h3>내가 올린 사망진단서</h3>
+  </div>
+</div>
+<div class="row">
+  <div class="row justify-content-center">
+    {{#each user.data.obituaryImagePaths}}
+      <div class="col-xs-12 col-sm-12 col-md-3">
+        <div class="card">
+          <img class="card-img-top" src="http://211.108.3.4:5000/{{imagepath}}" alt="obituary image cap">
+          <div class="card-footer">
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>
+{{/if}}
